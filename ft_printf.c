@@ -53,10 +53,7 @@ void ft_hex(unsigned int x, int *len, char hex)
 	char	*base_char;
 	int		i;
 
-	if (hex == 'X')
-		base_char = "0123456789ABCDEF";
-	else
-		base_char = "0123456789abcdef";
+	base_char = "0123456789abcdef";
 	i = 0;
 	if (x == 0)
 	{
@@ -73,7 +70,7 @@ void ft_hex(unsigned int x, int *len, char hex)
 		ft_putchar_len(str[i], len);
 }
 
-void check(char s, va_list *args, int	*len, int *i)
+void check(char s, va_list *args, int	*len)
 {
 	if (s == 's')
 		ft_str(va_arg(*args, char *), len);
@@ -81,12 +78,8 @@ void check(char s, va_list *args, int	*len, int *i)
 		ft_nbr(va_arg(*args, int), len);
 	else if (s == 'x')
 		ft_hex(va_arg(*args, unsigned int), len, 'x');
-	else if (s == 'X')
-		ft_hex(va_arg(*args, unsigned int), len, 'X');
 	else if (s == '%')
 		ft_putchar_len('%', len);
-	else
-		(*i)--;
 }
 
 int	ft_printf(const char	*s, ...)
@@ -98,7 +91,7 @@ int	ft_printf(const char	*s, ...)
 	{
 		if (s[i] == '%')
 		{
-			check(s[++i], &ap, &len, &i);
+			check(s[++i], &ap, &len);
 			i++;
 		}
 		else
@@ -110,6 +103,7 @@ int	ft_printf(const char	*s, ...)
 	va_end(ap);
 	return (len);
 }
+
 #include <stdio.h>
 int main()
 {
@@ -117,6 +111,7 @@ int main()
 	char *str = "hello world!";
 	char *lol = NULL;
 	unsigned char xX = 0xC0;
+
 	printf("%d\n", num);
 	ft_printf("%d\n", num);
 
@@ -130,4 +125,22 @@ int main()
 
 	printf("%s\n", lol);
 	ft_printf("%s\n", lol);
+
+
+char    *name = "Sara";
+    int     year = -2021;
+    int     *place = &year;
+
+    ft_printf("Hello there %s. 90%% of %d is over. Meet me at %x", name, year, place);
+
+	printf("\n\n\n");
+
+ 	char	stri[] = "hello";
+	int		numb = -90;
+	int		hex = 0xE7E55;
+	printf("hello, repeat: %s, repeat it %d times and %x", stri, numb, hex);
+	printf("\n\n\n");
+	ft_printf("hello, repeat: %s, repeat it %d times and %x", stri, numb, hex);
+	printf("\n");
+	return(0);
 }
