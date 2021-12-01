@@ -1,163 +1,92 @@
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
+#include <stdlib.h>
+#include <unistd.h>
 
-	i = 0;
-	while (s[i] != '\0')
-		i++;
-	return (i);
-}
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <strings.h>
 
-char	*ft_strjoin(const char *s1, const char *s2)
-{
-	char	*str;
-	size_t	i;
-	size_t	j;
+int get_next_line(int fd, char **line);
 
-	str = (char *)malloc(sizeof(*s1) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (str == NULL)
-		return (NULL);
-	i = 0;
-	j = 0;
-	while (s1[i])
-		str[j++] = s1[i++];
-	i = 0;
-	while (s2[i])
-		str[j++] = s2[i++];
-	str[j] = '\0';
-	return (str);
-}
-
-char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	size_t	new_len;
-	char	*substr;
-
-	if (s == NULL)
-		return (NULL);
-	if (start >= ft_strlen(s) || !len)
-		return (ft_strdup(""));
-	new_len = ft_strlen(s + start);
-	if (new_len < len)
-		len = new_len;
-	substr = (char *)malloc(sizeof(char) * (len + 1));
-	if (!substr)
-		return (NULL);
-	ft_strlcpy(substr, s + start, len + 1);
-	return (substr);
-}
-
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
-{
-	size_t	i;
-
-	i = 0;
-	if (src == NULL || dst == NULL)
+int	main(int argc, char **argv)
+{	
+	if (argc != 2)
+	{
+		printf("Usage: a.out <fichier>\n");
 		return (0);
-	if (dstsize == 0)
-		return (ft_strlen(src));
-	while (src[i] != '\0' && i < dstsize - 1)
-	{
-		dst[i] = src[i];
-		i++;
 	}
-	dst[i] = '\0';
-	return (ft_strlen(src));
-}
+	int fd;
+	int gnl;
+	char *line;
 
-char	*ft_strdup(const char *s)
-{
-	char	*duplicate;
-	size_t	i;
-
-	i = 0;
-	duplicate = (char *)malloc(sizeof(char) * ft_strlen(s) + 1);
-	if (duplicate == NULL)
-		return (NULL);
-	while (s[i])
+	fd = open(argv[1], O_RDONLY);
+	while ((gnl = get_next_line(fd, &line)) == 1)
 	{
-		duplicate[i] = s[i];
-		i++;
+		printf("%d:%s\n", gnl, line);
 	}
-	duplicate[i] = '\0';
-	return (duplicate);
-}
-
-char	*ft_strchr(const char *str, int c)
-{
-	while (*str)
-	{
-		if (*str == c)
-			return ((char *)str);
-		str++;
-	}
-	if (c == '\0')
-		return ((char *)str);
+	gnl = get_next_line(fd, &line);
+	printf("%d:%s\n", gnl, line);
 	return (0);
 }
-
-static char	*extract_newline(char *line)
+int		free_ret(void *ptr, int value)
 {
-	char	*leftover;
-	size_t	i;
-
-	i = 0;
-	while (line[i] != '\0' && line[i] != '\n')
-		i++;
-	if (line[i] == '\0' || line[1] == '\0')
-		return (NULL);
-	leftover = ft_substr(line, i + 1, ft_strlen(line) - i);
-	if (*leftover == '\0')
-	{
-		free(leftover);
-		leftover = NULL;
-	}
-	line[i + 1] = '\0';
-	return (leftover);
+	free(ptr);
+	return (value);
 }
 
-static char	*find_newline(int fd, char *buffer, char *backup)
-{
-	int		bytes_read;
-	char	*temp;
 
-	bytes_read = 1;
-	while (bytes_read != 0)
+
+
+
+void	*ft_memcpy(void *dst, const void *src, size_t n)
+{
+	char *dst_ptr;
+	size_t i;
+
+	if (dst == 0 && src == 0)
+		return (NULL);
+	dst_ptr = (char*)dst;
+	i = -1;
+	while (++i < n)
 	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-			return (NULL);
-		else if (bytes_read == 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		if (!backup)
-			backup = ft_strdup("");
-		temp = backup;
-		backup = ft_strjoin(temp, buffer);
-		free(temp);
-		temp = NULL;
-		if (ft_strchr(buffer, '\n'))
-			break ;
+		*dst_ptr = *((char*)src + i);
+		dst_ptr++;
 	}
-	return (backup);
+	return (dst);
 }
 
-char	*get_next_line(int fd)
+int		append(char **buf, size_t size, char c)
 {
-	char		*line;
-	char		*buffer;
-	static char	*backup;
+	char *tmp;
 
-	if ((fd < 0) || (BUFFER_SIZE <= 0))
-		return (NULL);
-	buffer = (char *)malloc((BUFFER_SIZE + 1) * (sizeof(char)));
-	if (!buffer)
-		return (NULL);
-	line = find_newline(fd, buffer, backup);
-	free(buffer);
-	buffer = NULL;
-	if (!line)
-		return (line);
-	backup = extract_newline(line);
-	return (line);
+	if (!(tmp = malloc(sizeof(char) * size + 1)))
+		return (free_ret(*buf, 0));
+	ft_memcpy(tmp, *buf, size);
+	free(*buf);
+	*buf = tmp;
+	(*buf)[size] = c;
+	return (1);
+}
+
+int		get_next_line(int fd, char **line)
+{
+	char *buf;
+	char c;
+	size_t l;
+	int ret;
+
+	buf = 0;
+	if (fd < 0 || !line || read(fd, buf, 0) < 0 || !(buf = malloc(sizeof(char) * 1)))
+		return (-1);
+	l = 0;
+	while ((ret = read(fd, &c, 1)) > 0 && c != '\n')
+	{
+		if (append(&buf, l, c) == 0)
+			free_ret(buf, -1);
+		l++;
+	}
+	append(&buf, l, '\0');
+	*line = buf;
+	free(buf);
+	return (ret);
 }
