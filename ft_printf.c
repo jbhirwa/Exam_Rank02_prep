@@ -9,6 +9,18 @@ int ft_putchar(char c)
     return (1);
 }
 
+int ft_putstr(char *s)
+{
+    int i;
+
+    i = 0;
+    if (!s)
+        s = "(null)";
+    while (s[i])
+        ft_putchar(s[i++]);
+    return (i);
+}
+
 int ft_putnbr(unsigned int i, int base)
 {
     char hex[] = "0123456789abcdef";
@@ -38,18 +50,6 @@ int ft_printfd(int i)
     }
     count += ft_putnbr(i, 10);
     return (count);
-}
-
-int ft_putstr(char *s)
-{
-    int i;
-
-    i = 0;
-    if (!s)
-        s = "(null)";
-    while (s[i])
-        ft_putchar(s[i++]);
-    return (i);
 }
 
 int ft_printf(const char *format, ...)
