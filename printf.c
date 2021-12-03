@@ -1,118 +1,91 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdarg.h>
 #include <limits.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 int ft_putchar(char c)
 {
-    write(1, &c, 1);
-    return (1);
+	write(1, &c, 1);
+	return(1);
 }
 
-int ft_putstr(char *s)
+int is_string(char *s)
 {
-    int i;
+	int i = 0;
 
-    i = 0;
-    if (!s)
-        s = "(null)";
-    while (s[i])
-        ft_putchar(s[i++]);
-    return (i);
+	if (!s)
+		s = "(null)";
+	while (s[i])
+		ft_putchar(s[i++]);
+	return(i);
+}	
+
+int hex_num(unsigned int num, int base)
+{
+	int count = 0, i;
+	char dec[] = "0123456789";
+	char hex[] = "0123456789abcdef";
+
+	if (num / base != 0)
+		hex_num(num / base, base);
+	i = num % base;
+	if (base == 16)
+		count += write(1, &hex[i], 1);
+	if (base == 10)
+		count += write(1, &dec[i], 1);
+	return(count);
 }
 
-int ft_putnbr(unsigned int i, int base)
+int pushConv_num(int num)
 {
-    char hex[] = "0123456789abcdef";
-    char dec[] = "0123456789";
-    int n;
+	int count = 0;
 
-    int count = 0;
-    if (i / base != 0)
-        count += ft_putnbr(i / base, base);
-    n = i % base;
-    if (base == 16)
-        count += write(1, &hex[n], 1);
-    else if (base == 10)
-        count += write(1, &dec[n], 1);
-    return (count);
-}
-
-int ft_printfd(int i)
-{
-    int count;
-
-    count = 0;
-    if (i < 0)
-    {
-        i *= -1;
-        count += ft_putchar('-');
-    }
-    count += ft_putnbr(i, 10);
-    return (count);
+	if (num < 0)
+	{
+		num *= -1;
+		count += ft_putchar('-');
+	}
+	count += hex_num(num, 10);
+	return (0);
 }
 
 int ft_printf(const char *format, ...)
 {
-    va_list args;
-    int i = 0, count = 0;
-    va_start(args, format);
-    while (format[i])
-    {
-        if (format[i] == '%')
-        {
-            i++;
-            if (format[i] == 'd')
-                count += ft_printfd(va_arg(args, int));
-            if (format[i] == 's')
-                count += ft_putstr(va_arg(args, char *));
-            if (format[i] == 'x')
-                count += ft_putnbr(va_arg(args, unsigned int), 16);
-        }        
-        else
-            count += ft_putchar(format[i]);
-        i++;
-    }
-    va_end(args);
-    return (count);
+	int	i = 0, count = 0;
+	va_list args;
+	
+	va_start(args, format);
+	while (format[i])
+	{
+		if (format[i] == '%')
+		{
+			i++;
+			if (format[i] == 's')
+				count += is_string(va_arg(args, char *));
+			if (format[i] == 'd')
+				count += pushConv_num(va_arg(args, int));
+			if (format[i] == 'x')
+				count += hex_num(va_arg(args, unsigned int), 16);
+		}
+		else 
+			count += ft_putchar(format[i]);
+		i++;
+	}
+	va_end(args);
+	return (count);
 }
 
 int main()
 {
-	int num = 5;
-	char *str = "hello world!";
-	char *lol = NULL;
-	unsigned char xX = 0xC0;
-
-	printf("\n\n%d\n\n\n", num);
-	ft_printf("\n\n\n%d\n\n\n", num);
-
-	printf("%s\n", str);
-	ft_printf("%s\n", str);
-
-	printf("%x\n", xX);
-	ft_printf("%x\n", xX);
-	printf("%X\n", xX);
-	ft_printf("%X\n", xX);
-
-	printf("%s\n", lol);
-	ft_printf("%s\n", lol);
+	int num = -90;
+	char name[] = "john";
+	unsigned int hexa = 0xE7E55;
+	unsigned int points = (unsigned int)&num;
+	
+	printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, points);
+	printf("\n\n");
+	ft_printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, points);
+	printf("\n\n");
 
 
-char    *name = "Sara";
-    int     year = -2021;
-    int     *place = &year;
-
-    ft_printf("Hello there %s. 90%% of %d is over. Meet me at %x", name, year, place);
-
-	printf("\n\n\n");
-
- 	char	stri[] = "hello";
-	int		numb = -90;
-	int		hex = 0xE7E55;
-	printf("hello, repeat: %s, repeat it %d times and %x", stri, numb, hex);
-	printf("\n\n\n");
-	ft_printf("hello, repeat: %s, repeat it %d times and %x", stri, numb, hex);
-	printf("\n");
-	return(0);
 }
