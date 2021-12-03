@@ -80,11 +80,11 @@ int main()
 	int num = -90;
 	char name[] = "john";
 	unsigned int hexa = 0xE7E55;
-	unsigned int points = (unsigned int)&num;
+	unsigned int addy = (unsigned int)&num;
 	
-	printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, points);
+	printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, addy);
 	printf("\n\n");
-	ft_printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, points);
+	ft_printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, addy);
 	printf("\n\n");
 
 	return (0)
