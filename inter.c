@@ -1,26 +1,11 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   inter.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: melghoud <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/26 12:44:46 by melghoud          #+#    #+#             */
-/*   Updated: 2021/11/29 14:01:28 by jhabaguh         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <unistd.h>
 
-int	main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	int	ascii[255];
-	int	i;
-	int	j;
+	int	i = 0, j, ascii[255];
 
 	if (argc == 3)
 	{
-		i = 0;
 		while (i < 255)
 			ascii[i++] = 0;
 		i = 2;
@@ -42,5 +27,5 @@ int	main(int argc, char **argv)
 		}
 	}
 	write(1, "\n", 1);
-	return(0);
+	return (0);
 }
