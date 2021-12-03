@@ -1,2 +1,2 @@
 # Exam_Rank02_prep
-Truncated version of printf, whole get next line and some misc.
+Truncated version of printf and get next line, and some great inter and union.
