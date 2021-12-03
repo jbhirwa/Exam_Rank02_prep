@@ -1,22 +1,24 @@
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <stdio.h>
+#include <fcntl.h>
+#define BUFFER_SIZE 1
 int	strLen(char *str)
 {
 	int i = 0;
 	if (!str)
-		return(NULL);
+		return(0);
 	while(str[i])
 		i++;
 	return(i);
 }
 
-void	join(char **line, char *buffer)
+void	join(char **line, char *buff)
 {
 	int i = 0;
 	int j = 0; 
 	char *temp;
-	temp = (char *)malloc(sizeof(char) * (strLen(*line) + strLen(buffer) + 1));
+	temp = (char *)malloc(sizeof(char) * (strLen(*line) + strLen(buff) + 1));
 	
 	if (*line)
 	{
@@ -40,11 +42,11 @@ void	join(char **line, char *buffer)
 	*line = temp;
 }
 
-int	hasNL(char *s)
+int	hasNL(char *str)
 {
 	int i = 0;
 	if(!str)
-		return(NULL);
+		return(0);
 	while(str[i])
 	{
 		if (str[i] == '\n')
@@ -87,11 +89,30 @@ char	*get_next_line(int fd)
 		while (line[i])
 		{
 			buffer[j] = line[i];
-			line[i] = '\0'
+			line[i] = '\0';
 			i++;
 			j++;
 		}
-		buffer[j] = '\0'		
+		buffer[j] = '\0';		
 	}
 	return(line);
 }
+
+int	main(void)
+{
+char	*s;
+int		fd;
+int		count_line;
+
+count_line = 22;
+	fd = open("test.txt", O_RDONLY);
+	while (count_line > 0)
+ 	{
+ 		s = get_next_line(fd);
+ 		printf("%s", s);
+ 		free(s);
+ 		count_line--;
+ 	}
+ 	close(fd);
+ 	return (0);
+ }
