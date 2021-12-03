@@ -1,161 +1,97 @@
-#include <unistd.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <stdio.h>
+#include <unistd.h>
 
-int ft_strlen(const char *str)
+int	strLen(char *str)
 {
-    int i;
-
-    while (str[i])
-        i++;
-    return (i);
+	int i = 0;
+	if (!str)
+		return(NULL);
+	while(str[i])
+		i++;
+	return(i);
 }
 
-char    *ft_substr(const char *str, int start, int len)
+void	join(char **line, char *buffer)
 {
-    char    *substr;
-    int     i = 0;
-    int     j = 0;
-
-    substr = (char *)malloc(sizeof(char) * len + 1);
-    if (!substr)
-        return (NULL);
-    while (str[i])
-    {
-        if (i >= start && i < len)
-            substr[j++] = str[i];
-        i++;
-    }
-    substr[j] ='\0';
-    return (substr);
+	int i = 0;
+	int j = 0; 
+	char *temp;
+	temp = (char *)malloc(sizeof(char) * (strLen(*line) + strLen(buffer) + 1));
+	
+	if (*line)
+	{
+		while((*line)[i])
+		{
+			temp[i] = (*line)[i];
+			i++;
+		}
+	}
+	if (buff)
+	{
+		while(buff[j])
+		{
+			temp[i + j] = buff[j];
+			j++;
+		}
+	}
+	temp[i + j] = '\0';
+	if(*line)
+		free(*line);
+	*line = temp;
 }
 
-char    *ft_strjoin(const char *s1, const char *s2)
+int	hasNL(char *s)
 {
-    char    *str;
-    int     i = 0;
-    int     j = 0;
-
-    str = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-    if (!str)
-        return (NULL);
-    while (s1[i])
-    {
-        str[i] = s1[i];
-        i++;
-    }
-    while (s2[j])
-    {
-        str[i + j] = s2[j];
-        j++;
-    }
-    str[i + j] = '\0';
-    return (str);
- }
-
-char    *ft_strdup(char *str)
-{
-    char    *strdup;
-    int     i = 0;
-
-    strdup = (char *)malloc(sizeof(char) * ft_strlen(str) + 1);
-    if (!strdup)
-        return (NULL);
-    while (str[i])
-    {
-        strdup[i] = str[i];
-        i++;
-    }
-    strdup[i] = '\0';
-    return (strdup);
+	int i = 0;
+	if(!str)
+		return(NULL);
+	while(str[i])
+	{
+		if (str[i] == '\n')
+			return(0);
+		i++;
+	}
+	return(1);
 }
 
-char    *ft_strchr(const char *str, int c)
+void	toZero(char *str, int len)
 {
-    if (!c)
-        return ((char *)str);
-    while (*str)
-    {
-        if (*str == c)
-            return ((char *)str);
-        str++;
-    }
-    return (NULL);
+	int i = 0;
+	while (i < len)
+	str[i++] = 0;
 }
 
-static char *read_and_append(int fd, char *buffer, char *remainder)
+char	*get_next_line(int fd)
 {
-    int     bytes_read = 1;
-    char    *temp;
-    
-    while (bytes_read != 0)
-    {
-        bytes_read = read(fd, buffer, BUFFER_SIZE);
-        if (bytes_read == -1)
-            return (NULL);
-        if (bytes_read == 0)
-            break ;
-        buffer[bytes_read] = '\0';
-        if (!remainder)
-            remainder = ft_strdup("");
-        temp = remainder;
-        remainder = ft_strjoin(temp, buffer);
-        free(temp);
-        temp = NULL;
-        if (ft_strchr(buffer, '\n'))
-            break ;
-    }
-    return (remainder);
-}
-
-char    *update_next_line(char *line)
-{
-    char    *remainder;
-    int     idx;
-
-    while (line[idx] != '\0' && line[idx] != '\n')
-        idx++;
-    if (line[idx] == '\0' || line[1] == '\0')
-        return (NULL);
-    remainder = ft_substr(line, idx + 1, ft_strlen(line) - idx);
-    if (!(*remainder))
-    {
-        free(remainder);
-        remainder = NULL;
-    }
-    line[idx + 1] = '\0';
-    return (remainder);
-}
-
-char    *get_next_line(int fd)
-{
-    char        *line;
-    char        *buffer;
-    static char *remainder;
-
-    if (fd < 0 || BUFFER_SIZE <= 0)
-        return (0);
-    buffer = (char *)malloc(sizeof(char) * BUFFER_SIZE + 1);
-    if (!buffer)
-        return (NULL);
-    line = read_and_append(fd, buffer, remainder);
-    free(buffer);
-    buffer = NULL;
-    if (!line)
-        return (NULL);
-    remainder = update_next_line(line);
-    return (line);
-}
-
-int main(void)
-{
-    int fd;
-
-    fd = open("test.txt", O_RDWR);
-    printf("Next line:  %s\n", get_next_line(fd));
-    printf("Next line:  %s\n", get_next_line(fd));
-    printf("Next line:  %s\n", get_next_line(fd));
-    printf("Next line:  %s\n", get_next_line(fd));
-    return (0);
+	char *line = NULL;
+	static char buffer[BUFFER_SIZE + 1];
+	int i; 
+	int j; 
+	int bytes_read;
+	join(&line, buffer);
+	toZero(buffer, BUFFER_SIZE + 1);
+	bytes_read = 1;
+	while(hasNL(line) == 1 && bytes_read > 0)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		join(&line, buffer);
+		toZero(buffer, BUFFER_SIZE + 1);
+	}
+	i = 0;
+	while (line[i] && line[i] != '\n')
+		i++;
+	if (line[i] == '\n')
+	{
+		i++;
+		j = 0;
+		while (line[i])
+		{
+			buffer[j] = line[i];
+			line[i] = '\0'
+			i++;
+			j++;
+		}
+		buffer[j] = '\0'		
+	}
+	return(line);
 }
