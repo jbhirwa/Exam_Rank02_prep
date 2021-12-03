@@ -36,7 +36,7 @@ int hex_num(unsigned int num, int base)
 	return(count);
 }
 
-int pushConv_num(int num)
+int ConvPush_num(int num)
 {
 	int count = 0;
 
@@ -63,7 +63,7 @@ int ft_printf(const char *format, ...)
 			if (format[i] == 's')
 				count += is_string(va_arg(args, char *));
 			if (format[i] == 'd')
-				count += pushConv_num(va_arg(args, int));
+				count += ConvPush_num(va_arg(args, int));
 			if (format[i] == 'x')
 				count += hex_num(va_arg(args, unsigned int), 16);
 		}
