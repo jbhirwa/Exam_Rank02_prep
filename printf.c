@@ -87,5 +87,5 @@ int main()
 	ft_printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, points);
 	printf("\n\n");
 
-
+	return (0)
 }
