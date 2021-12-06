@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "gnl.h"
 
+/*
+ * gcc main.c gnl.c test.txt
+ */
+
 int	main(void)
 {
 	int		fd;
