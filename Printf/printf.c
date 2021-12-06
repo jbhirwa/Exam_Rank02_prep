@@ -27,7 +27,7 @@ int hex_num(unsigned int num, int base)
 	char hex[] = "0123456789abcdef";
 
 	if (num / base != 0)
-		hex_num(num / base, base);
+		count += hex_num(num / base, base);
 	i = num % base;
 	if (base == 16)
 		count += write(1, &hex[i], 1);
