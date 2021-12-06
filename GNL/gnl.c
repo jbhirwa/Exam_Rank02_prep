@@ -1,7 +1,4 @@
-# include <stdio.h>		// для функции main
-# include <fcntl.h>		// для функции open
-# include <stdlib.h>	// для функции malloc
-# include <unistd.h>	// для остальных функций
+#include "gnl.h"
 
 size_t	ft_strlen(const char *str)
 {
