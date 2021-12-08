@@ -50,26 +50,25 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*s3;
-	int		i;
-	int		j;
+	int		i = 0;
+	int		j = 0;
 
 	if (!s1 || !s2)
 		return (NULL);
 	s3 = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
 	if (!s3)
 		return (NULL);
-	i = -1;
-	while (s1[++i])
-		s3[i] = s1[i];
-	j = -1;
-	while (s2[++j])
-		s3[i + j] = s2[j];
-	free(s1);
-	s3[i + j] = '\0';
+	while (s1[i])
+		s3[j++] = s1[i++];
+	i = 0;
+	while (s2[i])
+		s3[j++] = s2[i++];
+	//free(s1);
+	s3[j] = '\0';
 	return (s3);
 }
 
-char	*ft_tail(char *tail, int *n)
+char	*extract_leftover(char *tail, int *n)
 {
 	char	*str;
 
@@ -78,7 +77,7 @@ char	*ft_tail(char *tail, int *n)
 	return (str);
 }
 
-char	*ft_line(char *tail, int *n)
+char	*extract_newline(char *tail, int *n)
 {
 	int		i;
 	char	*line;
@@ -87,15 +86,15 @@ char	*ft_line(char *tail, int *n)
 	while (tail[i] != '\n' && tail[i])
 		i++;
 	line = ft_substr(tail, 0, i + 1);
-	*n = i;	// присваиваю индекс по которому расположен '\n'
+	*n = i;	// i holds the index to which /n is found, i index is assigned to n
 	return (line);
 }
 
-char	*ft_read(int fd, char *tail)
+char	*find_newline(int fd, char *tail)
 {
 	int		count_read;
-	char	buf[BUFFER_SIZE + 1];	// выделяется память на стеке
-
+	char	buf[BUFFER_SIZE + 1];	
+	
 	count_read = 1;
 	while (count_read > 0 && !ft_strchr(tail, '\n'))
 	{
@@ -114,12 +113,12 @@ char	*ft_read(int fd, char *tail)
 char	*get_next_line(int fd)
 {
 	int			n;
-	static char	*tail;	// остаток считанного после '\n', который нуже для слудующего вызова GNL
-	char		*line;	// строка которая будет возращатся GNL
+	static char	*tail;	
+	char		*line; 
 
-	if (fd < 0 || BUFFER_SIZE < 1 || (read(fd, 0, 0) < 0))	// важная защита для BUFFER_SIZE < 1
+	if (fd < 0 || BUFFER_SIZE < 1 || (read(fd, 0, 0) < 0))
 		return (NULL);
-	tail = ft_read(fd, tail);
+	tail = find_newline(fd, tail);
 	if (!tail[0])
 	{
 		free(tail);
@@ -127,7 +126,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	n = 0;
-	line = ft_line(tail, &n);	// отправляю 'n' по адрусу, что бы работать с оригинальной переменной
-	tail = ft_tail(tail, &n);	// здесь тоже
+	line = extract_newline(tail, &n);
+	tail = extract_leftover(tail, &n);
 	return (line);
 }
