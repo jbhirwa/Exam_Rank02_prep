@@ -1,25 +1,22 @@
-#include <stdio.h>
 #include "gnl.h"
-
+#include <fcntl.h>
+#include <stdio.h>
 /*
  * gcc main.c gnl.c test.txt
  */
 
-int	main(void)
+int main(void)
 {
-	int		fd;
-	int		count_line;
-	char	*s;
+    int     fd;
+    char    *str;
 
-	count_line = 23;
-	fd = open("test.txt", O_RDONLY);
-	while (count_line > 0)
-	{
-		s = get_next_line(fd);
-		printf("%s", s);
-		free(s);
-		count_line--;
-	}
-	close(fd);
-	return (0);
+    fd = open("test.txt", O_RDWR);
+    str = get_next_line(fd);
+    while (str != NULL)
+    {
+        printf("%s", str);
+        str = get_next_line(fd);
+    }
+    
+    return (0);
 }

@@ -46,7 +46,7 @@ int ConvPush_num(int num)
 		count += ft_putchar('-');
 	}
 	count += hex_num(num, 10);
-	return (0);
+	return (count);
 }
 
 int ft_printf(const char *format, ...)
@@ -66,6 +66,8 @@ int ft_printf(const char *format, ...)
 				count += ConvPush_num(va_arg(args, int));
 			if (format[i] == 'x')
 				count += hex_num(va_arg(args, unsigned int), 16);
+			//if (format[i] == '%')
+			//	count += ft_putchar(format[i]);
 		}
 		else 
 			count += ft_putchar(format[i]);
@@ -82,10 +84,10 @@ int main()
 	unsigned int hexa = 0xE7E55;
 	unsigned int addy = (unsigned int)&num;
 	
-	printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, addy);
+	printf("my name is %s, i am %d, and live at %x and %x andd %%", name, num, hexa, addy);
 	printf("\n\n");
-	ft_printf("my name is %s, i am %d, and live at %x and %x", name, num, hexa, addy);
+	ft_printf("my name is %s, i am %d, and live at %x and %x andd %%", name, num, hexa, addy);
 	printf("\n\n");
 
-	return (0)
+	return (0);
 }

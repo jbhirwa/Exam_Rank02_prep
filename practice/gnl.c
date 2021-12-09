@@ -1,128 +1,125 @@
+#include <unistd.h>
+#include <stdlib.h>
 #include "gnl.h"
 
-int ft_strlen(const char *str)
+int ft_strlen(const char *s)
 {
-	int i = 0;
+    int i = 0;
 
-	while (str[i])
-		i++;
-	return (i);
+    while (s[i])
+        i++;
+    return (i);
 }
 
-char *strchr(const char *s, int c)
+char    *ft_strjoin(const char *s1, const char *s2)
 {
-	char *str;
+    char    *str;
+    int     i = 0, j = 0;
 
-	if (!s)
-		return (NULL);
-	str = (char *)s;
-	while (*str && *str != (unsigned char)c)
-		str++;
-	if (*str == (unsigned char)c)
-		return (str);
-	return (NULL);
-}
-
-char	*substr(char *buffer, unsigned int start, size_t len)
-{
-	char	*sub;
-	size_t		i;
-	
-	if (!buffer)
-		return (NULL);
-	i = ft_strlen(buffer);
-	if (len > i)
-		len = i;
-	sub = malloc(sizeof(char) * (len + 1));
-	if (!sub)
-		return (NULL);
+    str = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+    if (!str)
+        return (NULL);
+    while (s1[i])
+        str[j++] = s1[i++];
 	i = 0;
-	while (buffer[start + i] && (start + i) < len)
-	{
-		sub[i] = buffer[start + i];
-		i++;
-	}
-	sub[i] = '\0';
-	return (sub);
+    while (s2[i])
+        str[j++] = s2[i++];
+    str[j] = '\0';
+    return (str);
 }
 
-char *strjoin(char *s1, char *s2)
+char    *ft_substr(const char *str, int start, int len)
 {
-	
-	int i = 0, j = 0;
-	char *s3;
+    char *substr;
+    int i = 0;
+    int j = 0;
 
-	if (!s1 || !s2)
-		return (NULL);
-	s3 = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
-	if (!s3)
-		return(NULL);
-	while (s1[i])
-		s3[j++] = s1[i++];
-	i = 0;
-	while (s2[i])
-		s3[j++] = s2[i++];
-	//free(s1);
-	s3[j] = '\0';
-	return (s3);
+    substr = (char *)malloc(sizeof(char) * len + 1);
+    if (!substr)
+        return (NULL);
+    while (str[i])
+    {
+        if (i >= start && j < len)
+            substr[j++] = str[i];
+        i++; 
+    }
+    substr[j] = '\0';
+    return (substr);
 }
 
-char	*extract_leftover(char *leftover, int *nl_index)
+char    *ft_strchr(const char *s, int c)
 {
-	char *tail;
-
-	tail = substr(leftover, *nl_index + 1, ft_strlen(leftover));
-	free(leftover);
-	return (tail);
+    if (!c)
+        return ((char *)s);
+    while (*s)
+    {
+        if (*s == c)
+            return ((char *)s);
+        s++;
+    }
+    return (NULL);
 }
 
-char	*extract_line(char *leftover, int *nl_index)
+static char *find_newline(int fd, char *buffer, char *remainder)
 {
-	int i = 0;
-	char *line;
+    int bytes_read = 1;
+    char    *temp;
 
-	while (leftover[i] && leftover[i] != '\n')
-		i++;
-	*nl_index = i;
-	line = substr(leftover, 0, i + 1);
-	return (line);
+    while (bytes_read != 0)
+    {
+        bytes_read = read(fd, buffer, BUFFER_SIZE);
+        if (bytes_read == -1)   
+            return NULL;
+        if (bytes_read == 0)
+            break ;
+        buffer[bytes_read] = '\0';
+        if (!remainder)
+            remainder = ft_substr(buffer, 0, bytes_read);
+		temp = remainder;
+        remainder = ft_strjoin(temp, buffer);
+        free(temp);
+        temp = NULL;
+        if (ft_strchr(buffer, '\n'))
+            break ;
+    }
+    return (remainder);
 }
 
-char	*find_nextline(int fd, char *leftover)
+static char *extract_line(char *line)
 {
-	int bytes_read = 1;
-	char buffer[BUFFER_SIZE + 1];
+    char    *remainder;
+    int     idx = 0;
 
-	while (bytes_read > 0 && !strchr(leftover, '\n'))
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read < 0)
-			return (NULL);
-		buffer[bytes_read] = '\0';
-		if (!leftover)
-			leftover = substr(buffer, 0, bytes_read);
-		else
-			leftover = strjoin(buffer, leftover);
-	}
-	return (leftover);
+    while (line[idx] != '\0' && line[idx] != '\n')
+        idx++;
+    if (line[idx] == '\0' || line[1] == '\0')
+        return (NULL);
+    remainder = ft_substr(line, idx + 1, ft_strlen(line) - idx);
+    if (!(*remainder))
+    {
+        free(remainder);
+        remainder = NULL;
+    }
+    line[idx + 1] = '\0';
+    return (remainder);
 }
 
-char *get_next_line(int fd)
+char    *get_next_line(int fd)
 {
-	int			nl_index = 0;
-	char		*line;
-	static char	*leftover;
-	
-	if (fd < 0 || BUFFER_SIZE < 1 || (read(fd, 0, 0) < 0))
-		return (NULL);
-	leftover = find_nextline(fd, leftover);
-	if (!leftover)
-	{
-		free(leftover);
-		leftover = NULL;
-		return (NULL);
-	}
-	line = extract_line(leftover, &nl_index);
-	leftover = extract_leftover(leftover, &nl_index);
-	return (line);
+    char        *line;
+    char        *buffer;
+    static char *remainder;
+
+    if (fd < 0 || BUFFER_SIZE <= 0)
+        return (0);
+    buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+    if (!buffer)
+        return (NULL);
+    line = find_newline(fd, buffer, remainder);
+    free(buffer);
+    buffer = NULL;
+    if (!line)
+        return (0);
+    remainder = extract_line(line);
+    return (line);
 }
