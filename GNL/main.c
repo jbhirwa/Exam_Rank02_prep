@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "gnl.h"
+#include "get_next_line.h"
 
 /*
  * gcc main.c gnl.c test.txt

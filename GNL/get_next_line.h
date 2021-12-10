@@ -1,5 +1,5 @@
 #ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#define GET_NEXT_LINE_H
 
 # include <stdio.h>		// для функции main
 # include <fcntl.h>		// для функции open
